@@ -17,7 +17,7 @@ var device = require('iotivity-node'),
     lightResource,
     exitId,
     observerCount = 0,
-    resourceTypeNames = ['oic.wk.col', 'oic.r.light'],
+    resourceTypeNames = ['oic.wk.col', 'x-com.0m2m.r.light'],
     interfaceTypeNames = ['oic.if.baseline', 'oic.if.b', 'oic.if.ll'],
     resourceEntryPoint = '/light/',
     onoffstate = false,
@@ -71,26 +71,30 @@ function getProperties() {
     // Format the payload.
     var properties = [
       {
-        "href": "onoff",
-        "rep": {
-          "value": onoffstate
+        href: "onoff",
+        rep: {
+          value: onoffstate
         }
       },
       {
-        "href": "level",
-        "rep": {
-          "dimming": dimmingvalue
+        href: "level",
+        rep: {
+          dimming: dimmingvalue
         }
       },
       {
-        "href": "ramptime",
-        "rep": {
-          "value": ramptimevalue
+        href: "ramptime",
+        rep: {
+          ramptime: ramptimevalue
         }
       }
     ];
     debuglog('Send the response: ', properties);
-    return properties;
+    return {
+      value: onoffstate,
+      dimming: dimmingvalue,
+      ramptime: ramptimevalue
+    };
 }
 
 // Set up the notification loop
