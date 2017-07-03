@@ -13,12 +13,12 @@
 // limitations under the License.
 
 var device = require('iotivity-node'),
-    debuglog = require('util').debuglog('batchlight'),
+    debuglog = require('util').debuglog('light'),
     lightResource,
     exitId,
     observerCount = 0,
-    resourceTypeNames = ['oic.wk.col', 'x-com.0m2m.r.light'],
-    interfaceTypeNames = ['oic.if.baseline', 'oic.if.b', 'oic.if.ll'],
+    resourceTypeNames = ['oic.r.switch.binary', 'oic.r.light.dimming', 'oic.r.light.ramptime'],
+    interfaceTypeNames = ['oic.if.baseline'],
     resourceEntryPoint = '/light',
     onoffstate = false,
     dimmingvalue = 0,
@@ -53,48 +53,27 @@ if (!simulationMode) {
 // This function updates the resource properties
 // and changes the actuator state.
 function updateProperties(properties) {
-  properties.forEach( function(element) {
-    if (element.href == "onoff") {
-      onoffstate = element.rep.value
-    } else if (element.href == "level") {
-      dimmingvalue = element.rep.dimming
-    } else if (element.href == "ramptime") {
-      ramptimevalue = element.rep.ramptime
-    };
-  });
-    debuglog('Update received: ', properties);
+  if (properties.value) {
+    onoffstate = properties.value
+  } else if (properties.dimming) {
+    dimmingvalue = properties.dimming
+  } else if (properties.ramptime) {
+    ramptimevalue = properties.ramptime
+  };
+  debuglog('Update received: ', properties);
 }
 
 // This function obtains the current data and
 // constructs the payload to return to the client.
 function getProperties() {
     // Format the payload.
-    var properties = [
-      {
-        href: "onoff",
-        rep: {
-          value: onoffstate
-        }
-      },
-      {
-        href: "level",
-        rep: {
-          dimming: dimmingvalue
-        }
-      },
-      {
-        href: "ramptime",
-        rep: {
-          ramptime: ramptimevalue
-        }
-      }
-    ];
-    debuglog('Send the response: ', properties);
-    return {
+    var properties = {
       value: onoffstate,
       dimming: dimmingvalue,
       ramptime: ramptimevalue
     };
+    debuglog('Send the response: ', properties);
+    return properties;
 }
 
 // Set up the notification loop
