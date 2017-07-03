@@ -53,16 +53,15 @@ if (!simulationMode) {
 // This function updates the resource properties
 // and changes the actuator state.
 function updateProperties(properties) {
-  if (properties.value) {
-    onoffstate = properties.value
-  } else if (properties.dimming) {
-    dimmingvalue = properties.dimming
-  } else if (properties.ramptime) {
-    ramptimevalue = properties.ramptime
+  if (properties.value)
+    onoffstate = properties.value;
+  if (properties.dimming)
+    dimmingvalue = properties.dimming;
+  if (properties.ramptime)
+    ramptimevalue = properties.ramptime;
   };
   debuglog('Update received: ', properties);
 }
-
 // This function obtains the current data and
 // constructs the payload to return to the client.
 function getProperties() {
