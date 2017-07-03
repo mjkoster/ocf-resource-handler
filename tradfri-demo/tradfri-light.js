@@ -111,7 +111,7 @@ function handleError(error) {
 
 function setupHardware() {
   if (Tradfri) {
-    tradfriHub = new Tradfri({securityId: Tradfripsk , hubIpAddress: tradfriIP })
+    tradfriHub = new Tradfri({securityId: tradfripsk , hubIpAddress: tradfriIP })
   }
 }
 
@@ -130,11 +130,20 @@ device.platform = Object.assign(device.platform, {
 
 if (device.device.uuid) {
 
-    setupHardware();
+    if (!simulationMode) {
+        try {
+            setupHardware();
+        }
+        catch (e) {
+            debuglog('setup error');
+            debuglog('Automatically switching to simulation mode');
+            simulationMode = true;
+        }
+    }
 
-    debuglog('Create batch light resource.');
+    debuglog('Create light resource.');
 
-    // Register RGB LED resource
+    // Register resource
     device.server.register({
         resourcePath: resourceEntryPoint,
         resourceTypes: resourceTypeNames,
