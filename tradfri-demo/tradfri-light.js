@@ -62,7 +62,8 @@ function updateProperties(properties) {
   }
   if ('dimming' in properties) {
     dimmingvalue = properties.dimming;
-    propertymap.brightness = dimmingvalue;
+    if (onoffstate == true)
+      propertymap.brightness = dimmingvalue;
   }
   if ('ramptime' in properties)
     ramptimevalue = properties.ramptime;
