@@ -53,13 +53,30 @@ if (!simulationMode) {
 // This function updates the resource properties
 // and changes the actuator state.
 function updateProperties(properties) {
-  if (properties.value)
-    onoffstate = properties.value;
-  if (properties.dimming)
-    dimmingvalue = properties.dimming;
-  if (properties.ramptime)
-    ramptimevalue = properties.ramptime;
   debuglog('Update received: ', properties);
+
+  var propertymap = {};
+  if ('value' in properties) {
+    onoffstate = properties.value;
+    propertymap.state = (onoffstate ? 1 : 0 );
+  }
+  if ('dimming' in properties) {
+    dimmingvalue = properties.dimming;
+    propertymap.brightness = dimmingvalue;
+  }
+  if ('ramptime' in properties)
+    ramptimevalue = properties.ramptime;
+
+  if(Tradfri) {
+    tradfriHub.setDevice(
+      tradfrideviceID,
+      propertymap,
+      ramptimevalue
+    )
+    .then( (res) => {
+      console.log("device updated", propertymap, ramptimevalue)
+    });
+  }
 }
 // This function obtains the current data and
 // constructs the payload to return to the client.
@@ -111,7 +128,8 @@ function handleError(error) {
 
 function setupHardware() {
   if (Tradfri) {
-    tradfriHub = new Tradfri({securityId: tradfripsk , hubIpAddress: tradfriIP })
+    tradfriHub = new Tradfri({securityId: tradfripsk , hubIpAddress: tradfriIP });
+    tradfriHub.connect().then( console.log('connected'));
   }
 }
 
@@ -153,6 +171,7 @@ if (device.device.uuid) {
         properties: getProperties()
     }).then(
         function(resource) {
+            console.log('registered');
             debuglog('register() resource successful');
             lightResource = resource;
 
