@@ -1,0 +1,30 @@
+
+(Install docker and dockerimages for iotivity-node and iot-rest-api-server)
+
+curl -sSL https://get.docker.com | sh
+
+docker pull mjkoster/iotivity-node-rpi
+docker pull mjkoster/iot-rest-api-server-rpi
+
+mkdir test
+cd test
+
+npm install tradfri-coapdtls
+
+wget https://raw.githubusercontent.com/mjkoster/ocf-resource-handler/master/tradfri-demo/tradfri-light.js
+
+docker run -v `pwd`:/opt/user mjkoster/iotivity-node-rpi tradfri-light.js
+
+docker run --net host mjkoster/iot-rest-api-server-rpi
+
+----------------------
+(Alternatively, npm install node-modules for iot-rest-api-server and iotivity-node)
+
+sudo apt-get install scons build-essential libboost-dev libboost-thread-dev uuid-dev libssl-dev
+sudo apt-get install libglib2.0-dev autoconf libtool git
+sudo apt-get install sqlite3 libsqlite3-dev
+npm install iot-rest-api-server
+
+
+wget https://raw.githubusercontent.com/mjkoster/ocf-resource-handler/master/tradfri-demo/tradfri-light.js
+node tradfri-light.js

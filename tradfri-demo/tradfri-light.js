@@ -135,14 +135,14 @@ function setupHardware() {
 }
 
 device.device = Object.assign(device.device, {
-    name: 'batch light',
+    name: 'Tradfri light',
     coreSpecVersion: 'core.1.1.0',
     dataModels: ['res.1.1.0']
 });
 
 device.platform = Object.assign(device.platform, {
     manufacturerName: 'iotivity-node',
-    manufactureDate: new Date('Fri Oct 30 10:04:17 (EET) 2015'),
+    manufactureDate: new Date('Tue July 4 00:00:00 (PDT) 2017'),
     platformVersion: '1.1.0',
     firmwareVersion: '0.0.1'
 });
