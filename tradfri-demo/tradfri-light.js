@@ -59,7 +59,6 @@ function updateProperties(properties) {
     dimmingvalue = properties.dimming;
   if (properties.ramptime)
     ramptimevalue = properties.ramptime;
-  };
   debuglog('Update received: ', properties);
 }
 // This function obtains the current data and
