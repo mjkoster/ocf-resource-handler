@@ -13,19 +13,17 @@
 // limitations under the License.
 
 var device = require('iotivity-node'),
-    debuglog = require('util').debuglog('light'),
-    lightResource,
+    debuglog = require('util').debuglog('motion'),
+    motionResource,
     exitId,
     observerCount = 0,
-    resourceTypeNames = ['oic.r.switch.binary', 'oic.r.light.dimming', 'oic.r.light.ramptime'],
+    resourceTypeNames = ['oic.r.sensor.motion'],
     interfaceTypeNames = ['oic.if.baseline'],
-    resourceEntryPoint = '/light',
-    onoffstate = false,
-    dimmingvalue = 0,
-    ramptimevalue = 0,
+    resourceEntryPoint = '/motion',
+    motionstate = false,
     tradfripsk = "mk75jHZuEEBHyr4c",
     tradfriIP = "10.0.0.30",
-    tradfrideviceID = 65540,
+    tradfrideviceID = 65537,
     simulationMode = false;
 
 // Parse command-line arguments
@@ -57,25 +55,17 @@ function updateProperties(properties) {
 
   var propertymap = {};
   if ('value' in properties) {
-    onoffstate = properties.value;
-    propertymap.state = (onoffstate ? 1 : 0 );
+    motionstate = properties.value;
+    propertymap.value = (motionstate ? true : false );
   }
-  if ('dimming' in properties) {
-    dimmingvalue = properties.dimming;
-    if (onoffstate == true)
-      propertymap.brightness = dimmingvalue;
-  }
-  if ('ramptime' in properties)
-    ramptimevalue = properties.ramptime;
 
   if(Tradfri) {
     tradfriHub.setDevice(
       tradfrideviceID,
       propertymap,
-      ramptimevalue
     )
     .then( (res) => {
-      console.log("device updated", propertymap, ramptimevalue)
+      console.log("device updated", propertymap)
     });
   }
 }
@@ -84,9 +74,7 @@ function updateProperties(properties) {
 function getProperties() {
     // Format the payload.
     var properties = {
-      value: onoffstate,
-      dimming: dimmingvalue,
-      ramptime: ramptimevalue
+      value: motionstate
     };
     debuglog('Send the response: ', properties);
     return properties;
@@ -94,9 +82,9 @@ function getProperties() {
 
 // Set up the notification loop
 function notifyObservers(request) {
-    lightResource.properties = getProperties();
+    motionResource.properties = getProperties();
 
-    lightResource.notify().catch(
+    motionResource.notify().catch(
         function(error) {
             debuglog('Notify failed with error: ', error);
         });
@@ -104,8 +92,8 @@ function notifyObservers(request) {
 
 // Event handlers for the registered resource.
 function retrieveHandler(request) {
-    lightResource.properties = getProperties();
-    request.respond(lightResource).catch(handleError);
+    motionResource.properties = getProperties();
+    request.respond(motionResource).catch(handleError);
 
     if ('observe' in request) {
         observerCount += request.observe ? 1 : -1;
@@ -117,8 +105,8 @@ function retrieveHandler(request) {
 function updateHandler(request) {
     updateProperties(request.data);
 
-    lightResource.properties = getProperties();
-    request.respond(lightResource).catch(handleError);
+    motionResource.properties = getProperties();
+    request.respond(motionResource).catch(handleError);
     if (observerCount > 0)
         setTimeout(notifyObservers, 200);
 }
@@ -135,7 +123,7 @@ function setupHardware() {
 }
 
 device.device = Object.assign(device.device, {
-    name: 'Tradfri light',
+    name: 'Tradfri motion',
     coreSpecVersion: 'core.1.1.0',
     dataModels: ['res.1.1.0']
 });
@@ -174,7 +162,7 @@ if (device.device.uuid) {
         function(resource) {
             console.log('registered');
             debuglog('register() resource successful');
-            lightResource = resource;
+            motionResource = resource;
 
             // Add event handlers for each supported request type
             resource.onretrieve(retrieveHandler);
@@ -187,17 +175,17 @@ if (device.device.uuid) {
 
 // Cleanup when interrupted
 function exitHandler() {
-    debuglog('Delete light Resource.');
+    debuglog('Delete motion Resource.');
 
     if (exitId)
         return;
 
-    // clean up light stuff before we tear down the resource.
+    // clean up motion stuff before we tear down the resource.
     if (Tradfri) {
     }
 
     // Unregister resource.
-    lightResource.unregister().then(
+    motionResource.unregister().then(
         function() {
             debuglog('unregister() resource successful');
         },
